@@ -1,6 +1,6 @@
 # Training small LLM on BMW Press Releases
 
-This repository contains code and configurations for fine-tuningthe TinyLlama language model on a dataset of BMW press releases. The folder specifies a pipeline for data preprocessing, model training, and evaluation.
+This repository contains code and configurations for fine-tuning a small language model on a dataset of BMW press releases. The folder specifies a pipeline for data preprocessing, model training, and evaluation.
 
 ## Dataset and Dataset Prepraration
 

@@ -1,0 +1,3 @@
+base_model: HuggingFaceTB/SmolLM2-135M
+# base_model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+variant: base  # options: base, layer_removed

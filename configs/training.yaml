@@ -1,0 +1,15 @@
+batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2e-5
+weight_decay: 0.01
+num_train_epochs: 0
+warmup_steps: 5
+logging_steps: 1
+save_steps: 10
+fp16: true
+gradient_checkpointing: true
+lr_scheduler: linear
+max_grad_norm: 1.0
+eval_strategy: steps
+eval_steps: 2
+report_to: none

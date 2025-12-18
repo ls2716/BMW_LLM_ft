@@ -1,0 +1,20 @@
+dataset:
+  raw_csv: data/raw/bmw_press_releases.csv
+  # processed_dir: data/processed
+  processed_dir: data/processed
+
+splits:
+  train_ratio: 0.9
+  validation_ratio: 0.05
+  test_ratio: 0.05
+  seed: 42
+
+tokenizer:
+  use_fast: true
+  add_special_tokens: true
+
+sequence:
+  max_length: 256
+  packing: true
+  pad_token_id: null        # null → infer from tokenizer
+  label_pad_token_id: -100

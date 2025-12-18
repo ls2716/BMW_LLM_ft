@@ -331,7 +331,7 @@ wide, 1.5-inch-deep, 1.5-inch-wide, 1.5-inch-deep, 1.5-inch-wide, 1.5-
 
 From inspection of the generated samples, we observe that the trained base and trained layer-removed models do not produce perfect outputs. Both models stuck into repeating a certain sentence over and over again. Also, there is not much difference between the base and layer-removed models in terms of output quality.
 
-At the same time, the trained models (base and layer-removed) produce outputs that are significantly better than the original pre-trained SmolLM2-135M model, which either stucks into repeatinng a similar two word phrase (Sample 0 or 2 - '*-litre'/'*-inch-wide') or generates completely irrelevant text (Sample 1 - text about flowers and blue sky). 
+At the same time, the trained models (base and layer-removed) produce outputs that are significantly better than the original pre-trained SmolLM2-135M model, which either stucks into repeatinng a similar two word phrase (see Sample 0 or 2 - "-litre"/"-inch-wide") or generates completely irrelevant text (see Sample 1 - text about flowers and blue sky). 
 
 The fine-tuning process has clearly improved the model's ability to generate contextually relevant text, even if it is not perfect. For improving the output quality further, one needs more data and possibly longer training times. Furthermore, the original model is quite small (135M parameters), which limits its capacity to learn complex patterns in the data. Ideally, one would use a larger model e.g. 1.1B parameters or more.
 

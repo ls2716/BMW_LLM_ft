@@ -21,15 +21,15 @@ The raw dataset is composed using a web scraping notebook located at `notebooks/
 
 The processing pipeline consists of three main stages:
 1. Preprocessing: Transforming the raw CSV data into a cleaned and tokenized format suitable for model training, additionally splitting the dataset into training, validation, and test sets.
-2. Training: Fine-tuning the TinyLlama model using the preprocessed dataset.
-3. Evaluation: Assessing the performance of the fine-tuned model on the validation and test datasets.
+2. Training: Fine-tuning the LLM model using the preprocessed dataset.
+3. Evaluation: Assessing the performance of the fine-tuned model on the test dataset.
 
 ### Configuration
 
 The configuration for the pipeline is specified in configs/ folder.
 - The data-related and preprocessing configurations are defined in `configs/data.yaml`, which includes paths to the raw and processed datasets, dataset split ratios, and tokenizer settings.
 - Training hyperparameters are defined in `configs/training.yaml`.
-- Model architecture and related settings are specified in `configs/model.yaml`.
+- Base model (which also determines the tokenizer) and variant are specified in `configs/model.yaml`.
 
 ## Models
 
@@ -62,20 +62,20 @@ The pipeline is executed by first running the preprocessing script, followed by 
     ```bash
     python scripts/preprocess_data.py
     ```
-    This will create processed dataset files in the `data/processed/` directory (according to data config), split into training, validation, and test sets.
+    This will create processed dataset files in the `data/processed_ModelName/` directory (according to data and model config), split into training, validation, and test sets.
 3. Train the model:
     ```bash
-    python scripts/train_model.py
+    python scripts/train.py
     ```
     This will create an experiment output directory in the experiments folder, where model checkpoints and training logs will be saved.
 4. Evaluate the model:
     ```bash
-    python scripts/evaluate_model.py --experiment <experiment_name>
+    python scripts/evaluate.py --experiment <experiment_name>
     ```
     The experiment name corresponds to the folder created in the experiments directory during training e.g. `exp_001_SmolLM2-135M_base`.
     Evaluation script has more options that can be explored using:
     ```bash
-    python scripts/evaluate_model.py --help
+    python scripts/evaluate.py --help
     ```
 
 ### Design Considerations
@@ -159,7 +159,7 @@ The evaluation metrics for both the base and layer-removed models are summarized
 | Layer Removed Model | 2.7527      | 15.6847    |
 | Original Model      | 3.4234      | 30.6741    |
 
-From the evaluation metrics, we can see that both the trained base and layer-removed models outperform the original pre-trained SmolLM2-135M model on the loss and the perplexity (exp(loss)) metrics. This indicates that the fine-tuning process has improved the model's ability to predict the next token in the sequence. Both trained models have similar performance, with the base model having a slightly lower loss and perplexity than the layer-removed model. This suggests that while removing a layer negatively impacts the model's performance.
+From the evaluation metrics, we can see that both the trained base and layer-removed models outperform the original pre-trained SmolLM2-135M model on the loss and the perplexity (exp(loss)) metrics. This indicates that the fine-tuning process has improved the model's ability to predict the next token in the sequence. Both trained models have similar performance, with the base model having a slightly lower loss and perplexity than the layer-removed model. This suggests that removing a layer negatively impacts the model's performance, albeit only slightly in this case.
 
 #### Training Loss Comparison
 
@@ -170,7 +170,7 @@ The training loss curves for both the base and layer-removed models are plotted 
 
 The training loss curves for both the base and layer-removed models are plotted above. The loss for the base model is decaying slightly faster than for the layer-removed model, indicating better learning capacity. This aligns with the evaluation metrics, where the base model achieved a slightly lower loss and perplexity compared to the layer-removed model.
 
-At the same time, we note that the training loss curves overlap significantly in relation to the noise of the loss curves, execmplifying that both models learned using the same training parameters and on the same sequential data distribution.
+At the same time, we note that the training loss curves overlap significantly in relation to the noise of the loss curves, exemplifying that both models learned using the same training parameters and on the same sequential data distribution.
 
 ### Training Time Comparison
 
@@ -180,7 +180,7 @@ Below is the summary of the training times for both models:
 | Base Model          | 322.05                  | 1.3660           | 2.87e+14   |
 | Layer Removed Model | 311.35                  | 1.4130           | 2.77e+14   |
 
-From the training logs, we observe that optimisation of the base model was operation at 1.366 steps/sec, while the layer-removed model trained at 1.413 steps/sec. This indicates that removing a layer did indeed speed up the training process, as expected, since there are fewer parameters to update during each training step.
+From the training logs, we observe that optimisation of the base model was running at the speed of 1.366 steps/sec, while the layer-removed model trained at 1.413 steps/sec. This indicates that removing a layer did indeed speed up the training process, as expected, since there are fewer parameters to update during each training step.
 In total, the training of the base model took 3% more time than the layer-removed model.
 
 
@@ -192,12 +192,12 @@ Below are sample outputs generated by both models given the same input prompt:
 
 **Input Prompt:**
 Björn Lellmann, Head of Customer Racing at BMW M Motorsport:
-“At the very top of my success list this week is
+“At the very top of my success list this week is...
 
 ---
 
 **True Continuation:** 
- not a race result –
+ ...not a race result –
   as impressive as they were. I am absolutely thrilled that starting
   from the 2026 season, we will have our own cup class for the BMW M2
   Racing in the NLS. This is exactly the kind of application we
@@ -206,17 +206,17 @@ Björn Lellmann, Head of Customer Racing at BMW M Motorsport:
 
 ---
 **Base Model Output:**
- the BMW M Hybrid EV3. I’m very happy with the performance and the performance of the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW 
+ ...the BMW M Hybrid EV3. I’m very happy with the performance and the performance of the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW M Hybrid EV3. I’m very happy with the BMW 
 
 ---
 
 **Layer Removed Model Output:**
- the BMW M Hybrid. I’m very happy with the BMW M Hybrid. It’s a very strong car, and I’m very happy with it. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I
+ ...the BMW M Hybrid. I’m very happy with the BMW M Hybrid. It’s a very strong car, and I’m very happy with it. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I’m very happy with the BMW M Hybrid. I
 
 ---
  
 **Original Model Output:**
- the new BMW M 300e. It’s a 300-litre, 1.2-litre, 1.5-litre, 1.8-litre, 2.0-litre, 2.5-litre, 3.0-litre, 3.5-litre, 4.0-litre, 4.5-litre, 
+ ...the new BMW M 300e. It’s a 300-litre, 1.2-litre, 1.5-litre, 1.8-litre, 2.0-litre, 2.5-litre, 3.0-litre, 3.5-litre, 4.0-litre, 4.5-litre, 
 
  ---
  ---
@@ -226,12 +226,12 @@ Björn Lellmann, Head of Customer Racing at BMW M Motorsport:
 **Input Prompt:**
  in this decisive stage of the season. I am
   delighted for each and every one of them and send my heartfelt
-  congratulations. Now it’s about
+  congratulations. Now it’s about...
   
 ---
 
 **True Continuation:** 
- reaping the well-deserved rewards in
+ ...reaping the well-deserved rewards in
   the form of titles.”
 
 NLS: BMW M2 Racing to get its own cup class in its debut season.
@@ -241,7 +241,7 @@ Right in its debut season in 2026, the BMW M2 Racing will conquer the
   
 ---
 **Base Model Output:**
- the finale.
+ ...the finale.
 
 The finale of the season is the most important part of the
   season. It is the moment when the fans and the fans’ fans will
@@ -251,7 +251,7 @@ The finale of the season is the most important part of the
 
 ---
 **Layer Removed Model Output:**
- time to celebrate the season.
+ ...time to celebrate the season.
 
 The 2025 season is now underway. The season is now
   determined. The season is now determined.
@@ -270,7 +270,7 @@ The season is now
 
 ---
 **Original Model Output:**
- time to go to bed.
+ ...time to go to bed.
 
 The next morning, I woke up to find the sun shining brightly in the
   window. I was so excited to see the beautiful blue sky and the
@@ -285,11 +285,11 @@ The next morning, I woke up to find the sun shining brightly in the
 **Input Prompt:***
  It is affordable, powerful,
   easy to maintain, and cost-efficient, with the typical M precision and
-  drivability – ideal conditions for its own
+  drivability – ideal conditions for its own...
   
 ---
 **True Continuation:** 
- cup class on the
+ ...cup class on the
   Nordschleife." VLN Managing Director Mike Jäger added: "We
   are delighted that there will once again be a cup class for the BMW M2
   Racing in 2026. BMW cup cars have provided thrilling racing in the
@@ -298,7 +298,7 @@ The next morning, I woke up to find the sun shining brightly in the
 
 ---
 **Base Model Output:**
- and other BMW M models.
+ ...and other BMW M models.
 
 The BMW M4 GT3 EVO is the latest model in the BMW M series.
 It is the first of the new generation of the BMW M4 GT3 EVO.
@@ -308,7 +308,7 @@ The new model is also the first of the new generatio
 
 ---
 **Layer Removed Model Output:**
- use.
+ ...use.
 
 The BMW M4 GT3 EVO is the first of its kind in the BMW Group’s
   range of electric vehicles. The BMW M4 GT3 EVO is the first of its
@@ -319,7 +319,7 @@ The BMW M4 GT
 
 ---
 **Original Model Output:**
- use.
+ ...use.
 
 The M-1000 is a 1000-horsepower, 10-cylinder, 2.5-liter, 1.5-inch-diameter, 1.5-inch-
 wide, 1.5-inch-deep, 1.5-inch-wide, 1.5-inch-deep, 1.5-inch-wide, 1.5-
